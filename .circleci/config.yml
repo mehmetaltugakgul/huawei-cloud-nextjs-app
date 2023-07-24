@@ -1,26 +1,79 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/configuration-reference/#jobs
+orbs:
+  node: circleci/node@4.1.0
+
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/configuration-reference/#executor-job
+  deploy:
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/configuration-reference/#steps
+      - image: circleci/node:14-browsers
+    working_directory: ~/repo
+
     steps:
       - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
 
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/configuration-reference/#workflows
+      # Attach the workspace for cache sharing between jobs
+      - attach_workspace:
+          at: ~/repo
+
+      # Add your SSH key for deploying to the server
+      - run: ssh-add - <<< ${{ secrets.SSH_PRIVATE_KEY }}
+      
+      # Clone the repository containing the Next.js app
+      - run: git clone https://github.com/mehmetaltugakgul/huawei-cloud-nextjs-app.git
+
+      # Install NVM (Node Version Manager) to manage Node.js versions
+      - node/install-nvm:
+          version: v0.38.0
+
+      # Install Node.js (version 14.17.4) using NVM
+      - node/install-node:
+          version: 14.17.4
+
+      # Install Nginx web server
+      - run: sudo apt-get update && sudo apt-get install -y nginx
+
+      # Configure Nginx to serve the Next.js app
+      - run: |
+          sudo bash -c 'cat << EOF > /etc/nginx/sites-available/122.8.154.93
+          server {
+              listen 80;
+              server_name 122.8.154.93; # Replace with your domain name
+              location / {
+                  proxy_pass http://localhost:3000; # Assuming your Next.js app is running on port 3000
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection "upgrade";
+                  proxy_set_header Host \$host;
+                  proxy_cache_bypass \$http_upgrade;
+              }
+          }
+          EOF'
+          sudo ln -s /etc/nginx/sites-available/122.8.154.93 /etc/nginx/sites-enabled/
+          sudo nginx -t
+          sudo service nginx restart
+
+      # Install dependencies and build the Next.js application
+      - run:
+          name: Install dependencies and Build Next.js application
+          command: |
+            cd huawei-cloud-nextjs-app # Replace with the path to your Next.js application
+            npm install --force
+            npm run build
+
+      # Start the Next.js application
+      - run:
+          name: Start Next.js application
+          command: |
+            cd huawei-cloud-nextjs-app # Replace with the path to your Next.js application
+            nohup npm run start &
+
 workflows:
-  say-hello-workflow:
+  version: 2
+  deploy:
     jobs:
-      - say-hello
+      - deploy:
+          filters:
+            branches:
+              only:
+                - master
