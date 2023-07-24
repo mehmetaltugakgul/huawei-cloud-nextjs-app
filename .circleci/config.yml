@@ -33,10 +33,14 @@ jobs:
 
       # Install Nginx web server
       - run: sudo apt update
-             sudo apt upgrade
-            sudo apt install update-manager-core
-            sudo do-release-upgrade
-            sudo apt install nginx
+      - run: sudo apt upgrade
+      - run: sudo apt install update-manager-core
+      - run: sudo do-release-upgrade
+      - run: sudo apt install nginx
+             
+             
+             
+            
 
       # Configure Nginx to serve the Next.js app
       - run: |
