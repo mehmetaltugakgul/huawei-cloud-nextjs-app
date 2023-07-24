@@ -1,8 +1,5 @@
 version: 2.1
 
-orbs:
-  node: circleci/node@4.1.0
-
 jobs:
   deploy:
     docker:
@@ -25,13 +22,17 @@ jobs:
       # Clone the repository containing the Next.js app
       - run: git clone https://github.com/mehmetaltugakgul/huawei-cloud-nextjs-app.git
 
-      # Install NVM (Node Version Manager) to manage Node.js versions
-      - node/install-nvm:
-          version: v0.38.0
+      # Install NVM (Node Version Manager)
+      - run: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 
-      # Install Node.js (version 14.17.4) using NVM
-      - node/install-node:
-          version: 14.17.4
+      # Activate NVM
+      - run: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+      # Install Node.js (version 14.17.4)
+      - run: nvm install 14.17.4
 
       # Install Nginx web server
       - run: sudo apt-get update && sudo apt-get install -y nginx
