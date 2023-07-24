@@ -16,7 +16,7 @@ export default function Home() {
         <h1 className="text-4xl font-bold mb-4 text-black">Welcome to Huawei Cloud Next.js Demo App</h1>
         <p className="text-lg">
           Huawei Cloud is a leading cloud service provider that offers a wide range of
-          cloud computing services, including computing, storage, databases, and more.
+          cloud computing services, including computing, storage, databases, and more. -Altug
         </p>
         <p className="text-lg mt-4">
           With Huawei Cloud, you can build and deploy applications with ease and
