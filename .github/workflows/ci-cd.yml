@@ -27,7 +27,7 @@ jobs:
             mkdir -p ~/nextjs-app
 
             # Copy the build folder to the server using SCP
-            scp -r path/to/your/nextjs/app/build/* root@190.92.217.211:~/nextjs-app/
+            scp -r path/to/your/nextjs/app/build/* root@122.8.154.93:~/nextjs-app/
 
       # SSH into the server and clone the repository
       - name: Clone GitHub repository on the server
