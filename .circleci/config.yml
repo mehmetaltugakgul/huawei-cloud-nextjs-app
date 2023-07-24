@@ -9,6 +9,9 @@ jobs:
       - image: circleci/node:14-browsers
     working_directory: ~/repo
 
+    environment:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
     steps:
       - checkout
 
@@ -16,9 +19,9 @@ jobs:
       - attach_workspace:
           at: ~/repo
 
-      # Add your SSH key for deploying to the server
-      - run: ssh-add - <<< ${{ secrets.SSH_PRIVATE_KEY }}
-      
+      # Configure SSH using the environment variable
+      - run: echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+
       # Clone the repository containing the Next.js app
       - run: git clone https://github.com/mehmetaltugakgul/huawei-cloud-nextjs-app.git
 
