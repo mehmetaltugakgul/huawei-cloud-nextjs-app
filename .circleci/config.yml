@@ -27,17 +27,9 @@ jobs:
       # Clone the repository containing the Next.js app
       - run: git clone https://github.com/mehmetaltugakgul/huawei-cloud-nextjs-app.git
 
-      # Install NVM (Node Version Manager)
+      # Install NVM (Node Version Manager) and Node.js (version 14.17.4)
       - run: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-
-      # Activate NVM
-      - run: |
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-      # Install Node.js (version 14.17.4)
-      - run: nvm install 14.17.4
+      - run: export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm install 14.17.4
 
       # Install Nginx web server
       - run: sudo apt-get update && sudo apt-get install -y nginx
