@@ -1,56 +1,26 @@
-name: Deploy to Huawei Cloud ECS
-
+name: Deploy Next.js to Server
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Setup SSH and known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 190.92.217.211 >> ~/.ssh/known_hosts
-          # Huawei Cloud ECS sunucunuzun IP adresini veya alan adını burada belirtin.
+    - name: Install SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
 
-      - name: Install Node.js and NPM
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y nodejs npm
+    - name: Add server to known hosts
+      run: ssh-keyscan -H 190.92.217.211 >> ~/.ssh/known_hosts
 
-      - name: Install Dependencies
-        run: |
-          npm install
-
-      - name: Start Next.js App in Development Mode
-        run: |
-          npm run dev
-
-      - name: Install Nginx
-        run: |
-          sudo apt-get install -y nginx
-
-      - name: Adjust Nginx Configuration
-        run: |
-          sudo rm /etc/nginx/sites-enabled/default
-          echo "server {
-                  listen 80;
-                  server_name _;
-
-                  location / {
-                      proxy_pass http://127.0.0.1:3000;
-                      proxy_set_header Host \$host;
-                      proxy_set_header X-Real-IP \$remote_addr;
-                  }
-              }" | sudo tee /etc/nginx/sites-available/next-app
-          sudo ln -s /etc/nginx/sites-available/next-app /etc/nginx/sites-enabled/next-app
-          sudo nginx -t
-          sudo systemctl restart nginx
+    - name: Deploy Next.js application
+      run: |
+        ssh -i ~/.ssh/id_rsa root@190.92.217.211 "git pull origin main && npm install && npm run build && npm run start:prod"
