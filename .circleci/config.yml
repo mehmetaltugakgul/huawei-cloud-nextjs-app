@@ -38,8 +38,7 @@ jobs:
 
       # Configure Nginx to serve the Next.js app
       - run: |
-          sudo bash -c 'cat << EOF > /etc/nginx/sites-available/122.8.154.93
-          server {
+          echo 'server {
               listen 80;
               server_name 122.8.154.93; # Replace with your domain name
               location / {
@@ -50,8 +49,7 @@ jobs:
                   proxy_set_header Host \$host;
                   proxy_cache_bypass \$http_upgrade;
               }
-          }
-          EOF'
+          }' | sudo tee /etc/nginx/sites-available/122.8.154.93
           sudo ln -s /etc/nginx/sites-available/122.8.154.93 /etc/nginx/sites-enabled/
           sudo nginx -t
           sudo service nginx restart
