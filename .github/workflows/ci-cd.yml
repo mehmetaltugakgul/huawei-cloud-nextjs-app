@@ -1,4 +1,5 @@
-name: Deploy Next.js to Server
+name: Deploy to Huawei Cloud ECS
+
 on:
   push:
     branches:
@@ -7,35 +8,52 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
-
 
     steps:
-    
-    - name: Deploy Next.js application
-      run: |
-        sudo apt install npm
-        
-    - name: Checkout code
-      uses: actions/checkout@v2
+      # Checkout the code to the runner machine
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Install Node.js and npm
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14.x'  # You can specify the desired Node.js version here
+      # Install dependencies and build Next.js application
+      - name: Build Next.js app
+        run: |
+          cd path/to/your/nextjs/app
+          npm install
+          npm run build
 
-    - name: Install SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
+      # Upload the build folder to the server via SSH
+      - name: Deploy to Huawei Cloud ECS
+        uses: appleboy/scp-action@v1
+        with:
+          host: your-huawei-cloud-ecs-ip
+          username: your-ssh-username
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add your private key as a secret in the GitHub repository settings
 
-    - name: Add server to known hosts
-      run: ssh-keyscan -H 190.92.217.211 >> ~/.ssh/known_hosts
+      # SSH into the server and perform setup tasks
+      - name: SSH into the server
+        uses: appleboy/ssh-action@master
+        with:
+          host: 190.92.217.211
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add your private key as a secret in the GitHub repository settings
+          script: |
+            # Install Nginx on the server (if not already installed)
+            sudo apt-get update
+            sudo apt-get install nginx -y
 
-    - name: Deploy Next.js application
-      run: |
-        sudo apt install nodejs
-        sudo apt install npm
-        sudo apt install curl
-        ssh -i ~/.ssh/id_rsa root@190.92.217.211 "cd huawei-cloud-nextjs-app && npm install && npm run build && npm run start:prod"
+            # Configure Nginx to serve your Next.js application
+            sudo rm /etc/nginx/sites-enabled/default
+            sudo bash -c 'cat > /etc/nginx/sites-available/nextjs-app' << EOF
+            server {
+              listen 80 default_server;
+              server_name _;
+              location / {
+                root /path/to/your/nextjs/app/build;  # Replace with the path to your Next.js build folder
+                index index.html;
+              }
+            }
+            EOF
+
+            sudo ln -s /etc/nginx/sites-available/nextjs-app /etc/nginx/sites-enabled/
+            sudo nginx -t
+            sudo systemctl restart nginx
