@@ -62,4 +62,4 @@ jobs:
       - name: Start Next.js application
         run: |
           cd huawei-cloud-nextjs-app
-          nohup npm run start
+          nohup npm run dev &
