@@ -1,4 +1,4 @@
-name: Deploy to Huawei Cloud ECS
+name: Deploy Next.js Application
 
 on:
   push:
@@ -10,75 +10,56 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code to the runner machine
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Upload the repository to the server via SCP using SSH
-      - name: Upload repository to Huawei Cloud ECS
-        uses: appleboy/ssh-action@master
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.1
         with:
-          host: 122.8.154.93
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add your private key as a secret in the GitHub repository settings
-          port: 22  # Replace with the SSH port number if different (default is 22)
-          script: |
-            # Create a directory to store the application files
-            mkdir -p ~/nextjs-app
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # Add any other SSH configuration you might need, such as known_hosts, etc.
 
-            # Copy the build folder to the server using SCP
-            scp -r path/to/your/nextjs/app/build/* root@122.8.154.93:~/nextjs-app/
+      - name: Install Node.js and npm
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nodejs npm
 
-      # SSH into the server and clone the repository
-      - name: Clone GitHub repository on the server
-        uses: appleboy/ssh-action@master
-        with:
-          host: 122.8.154.93
-          username: root
-          key: ${{secrets.SSH_PRIVATE_KEY}}  # Add your private key as a secret in the GitHub repository settings
-          port: 22  # Replace with the SSH port number if different (default is 22)
-          script: |
-            git clone https://github.com/your-username/your-repo.git ~/nextjs-repo  # Replace with your GitHub repository URL
+      - name: Install Nginx
+        run: |
+          sudo apt-get install -y nginx
 
-      # Install dependencies and build Next.js application
-      - name: Build Next.js app on the server
-        uses: appleboy/ssh-action@master
-        with:
-          host: 122.8.154.93
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add your private key as a secret in the GitHub repository settings
-          port: 22  # Replace with the SSH port number if different (default is 22)
-          script: |
-            cd ~/nextjs-repo/path/to/your/nextjs/app
-            npm install
-            npm run build
+      - name: Configure Nginx
+        run: |
+          sudo bash -c 'cat << EOF > /etc/nginx/sites-available/122.8.154.93
+          server {
+              listen 80;
+              server_name 122.8.154.93;
 
-      # SSH into the server and perform setup tasks
-      - name: SSH into the server and setup Nginx
-        uses: appleboy/ssh-action@master
-        with:
-          host: 122.8.154.93
-          username: root
-          key: ${{secrets.SSH_PRIVATE_KEY}}  # Add your private key as a secret in the GitHub repository settings
-          port: 22  # Replace with the SSH port number if different (default is 22)
-          script: |
-            # Install Nginx on the server (if not already installed)
-            sudo apt-get update
-            sudo apt-get install nginx -y
-
-            # Configure Nginx to serve your Next.js application
-            sudo rm /etc/nginx/sites-enabled/default
-            sudo bash -c 'cat > /etc/nginx/sites-available/nextjs-app' << EOF
-            server {
-              listen 80 default_server;
-              server_name _;
               location / {
-                root /home/root/nextjs-app;  # Replace with the path to the copied Next.js build folder
-                index index.html;
+                  proxy_pass http://localhost:3000; # Assuming your Next.js app is running on port 3000
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host $host;
+                  proxy_cache_bypass $http_upgrade;
               }
-            }
-            EOF
+          }
+          EOF'
 
-            sudo ln -s /etc/nginx/sites-available/nextjs-app /etc/nginx/sites-enabled/
-            sudo nginx -t
-            sudo systemctl restart nginx
+          sudo ln -s /etc/nginx/sites-available/122.8.154.93 /etc/nginx/sites-enabled/
+          sudo nginx -t
+          sudo service nginx restart
+
+      - name: Clone the repository
+        run: git clone https://github.com/mehmetaltugakgul/huawei-cloud-nextjs-app.git
+
+      - name: Install dependencies
+        run: |
+          cd huawei-cloud-nextjs-app
+          npm install --force
+
+      - name: Build and start Next.js application
+        run: |
+          cd huawei-cloud-nextjs-app
+          npm run build
+          npm run dev
