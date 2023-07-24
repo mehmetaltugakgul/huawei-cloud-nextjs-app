@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: centos-7
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
@@ -21,16 +21,19 @@ jobs:
           ssh-keyscan -H 119.13.108.80 >> ~/.ssh/known_hosts
           # Replace <ECS_SERVER_IP> with the IP address or domain name of your Huawei Cloud ECS server.
 
+      - name: Install Node.js and NPM
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nodejs npm
+
       - name: Install Dependencies and Build Next.js App
         run: |
-          sudo yum update -y
-          sudo yum install -y nodejs npm
           npm install
           npm run build
 
       - name: Deploy to Nginx
         run: |
-          sudo yum install -y nginx
-          sudo cp -r ./out/* /usr/share/nginx/html
+          sudo apt-get install -y nginx
+          sudo cp -r ./out/* /var/www/html
           sudo systemctl start nginx
           sudo systemctl enable nginx
