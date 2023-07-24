@@ -7,8 +7,15 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
+
 
     steps:
+    
+    - name: Deploy Next.js application
+      run: |
+        sudo apt install npm
+        
     - name: Checkout code
       uses: actions/checkout@v2
 
