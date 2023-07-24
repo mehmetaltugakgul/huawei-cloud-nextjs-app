@@ -23,7 +23,7 @@ jobs:
 
       # Upload the build folder to the server via SSH
       - name: Deploy to Huawei Cloud ECS
-        uses: appleboy/scp-action@v1
+        uses: appleboy/scp-action@master
         with:
           host: your-huawei-cloud-ecs-ip
           username: your-ssh-username
