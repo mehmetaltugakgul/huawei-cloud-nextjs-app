@@ -53,13 +53,13 @@ jobs:
       - name: Clone the repository
         run: git clone https://github.com/mehmetaltugakgul/huawei-cloud-nextjs-app.git
 
-      - name: Install dependencies
+      - name: Install dependencies and Build Next.js application
         run: |
           cd huawei-cloud-nextjs-app
           npm install --force
+          npm run build
 
-      - name: Build and start Next.js application
+      - name: Start Next.js application
         run: |
           cd huawei-cloud-nextjs-app
-          npm run build
-          npm run dev
+          nohup npm run start &
