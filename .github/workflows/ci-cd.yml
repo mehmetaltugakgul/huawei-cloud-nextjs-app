@@ -35,7 +35,7 @@ jobs:
         with:
           host: 190.92.217.211
           username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add your private key as a secret in the GitHub repository settings
+          key: ${{secrets.SSH_PRIVATE_KEY}}  # Add your private key as a secret in the GitHub repository settings
           port: 22  # Replace with the SSH port number if different (default is 22)
           script: |
             git clone https://github.com/your-username/your-repo.git ~/nextjs-repo  # Replace with your GitHub repository URL
@@ -59,7 +59,7 @@ jobs:
         with:
           host: 190.92.217.211
           username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add your private key as a secret in the GitHub repository settings
+          key: ${{secrets.SSH_PRIVATE_KEY}}  # Add your private key as a secret in the GitHub repository settings
           port: 22  # Replace with the SSH port number if different (default is 22)
           script: |
             # Install Nginx on the server (if not already installed)
@@ -73,7 +73,7 @@ jobs:
               listen 80 default_server;
               server_name _;
               location / {
-                root /home/${{ secrets.SSH_USERNAME }}/nextjs-repo/path/to/your/nextjs/app/build;  # Replace with the path to the copied Next.js build folder
+                root /home/root/nextjs-app/build;  # Replace with the path to the copied Next.js build folder
                 index index.html;
               }
             }
