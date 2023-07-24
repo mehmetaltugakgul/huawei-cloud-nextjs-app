@@ -26,20 +26,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y nodejs npm
 
-      - name: Install Dependencies and Build Next.js App
+      - name: Install Dependencies
         run: |
           npm install
-          npm run build
 
-      - name: Install and Start Nginx
+      - name: Start Next.js App in Development Mode
+        run: |
+          npm run dev
+
+      - name: Install Nginx
         run: |
           sudo apt-get install -y nginx
-          sudo systemctl start nginx
-          sudo systemctl enable nginx
 
       - name: Adjust Nginx Configuration
         run: |
-          sudo rm /etc/nginx/sites-available/default
           sudo rm /etc/nginx/sites-enabled/default
           echo "server {
                   listen 80;
@@ -51,6 +51,6 @@ jobs:
                       proxy_set_header X-Real-IP \$remote_addr;
                   }
               }" | sudo tee /etc/nginx/sites-available/next-app
-          sudo ln -s /etc/nginx/sites-available/next-app /etc/nginx/sites-enabled/
+          sudo ln -s /etc/nginx/sites-available/next-app /etc/nginx/sites-enabled/next-app
           sudo nginx -t
           sudo systemctl restart nginx
