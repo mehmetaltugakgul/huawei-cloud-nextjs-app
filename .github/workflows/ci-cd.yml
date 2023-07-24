@@ -55,11 +55,11 @@ jobs:
 
       - name: Install dependencies and Build Next.js application
         run: |
-          cd your_project_directory # Replace with the path to your Next.js application
+          cd 122.8.154.93 # Replace with the path to your Next.js application
           npm install --force
           npm run build
 
       - name: Start Next.js application
         run: |
-          cd your_project_directory # Replace with the path to your Next.js application
+          cd 122.8.154.93 # Replace with the path to your Next.js application
           nohup npm run start &
