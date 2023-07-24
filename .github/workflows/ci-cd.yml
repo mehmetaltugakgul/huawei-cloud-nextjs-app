@@ -1,0 +1,36 @@
+name: Deploy to Huawei Cloud ECS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: centos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup SSH and known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H <ECS_SERVER_IP> >> ~/.ssh/known_hosts
+          # Replace <ECS_SERVER_IP> with the IP address or domain name of your Huawei Cloud ECS server.
+
+      - name: Install Dependencies and Build Next.js App
+        run: |
+          sudo yum update -y
+          sudo yum install -y nodejs npm
+          npm install
+          npm run build
+
+      - name: Deploy to Nginx
+        run: |
+          sudo yum install -y nginx
+          sudo cp -r ./out/* /usr/share/nginx/html
+          sudo systemctl start nginx
+          sudo systemctl enable nginx
