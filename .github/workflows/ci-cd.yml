@@ -18,6 +18,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           # Add any other SSH configuration you might need, such as known_hosts, etc.
+          
+      - name: Clone the repository
+        run: git clone https://github.com/mehmetaltugakgul/huawei-cloud-nextjs-app.git    
 
       - name: Install Node.js using nvm
         run: |
