@@ -1,0 +1,82 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@4.1.0
+
+jobs:
+  deploy:
+    docker:
+      - image: circleci/node:14-browsers
+    working_directory: ~/repo
+
+    environment:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    steps:
+      - checkout
+
+      # Attach the workspace for cache sharing between jobs
+      - attach_workspace:
+          at: ~/repo
+
+      # Configure SSH using the environment variable
+      - run: echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+
+      # Clone the repository containing the Next.js app
+      - run: git clone https://github.com/mehmetaltugakgul/huawei-cloud-nextjs-app.git
+
+      # Install NVM (Node Version Manager) to manage Node.js versions
+      - node/install-nvm:
+          version: v0.38.0
+
+      # Install Node.js (version 14.17.4) using NVM
+      - node/install-node:
+          version: 14.17.4
+
+      # Install Nginx web server
+      - run: sudo apt-get update && sudo apt-get install -y nginx
+
+      # Configure Nginx to serve the Next.js app
+      - run: |
+          sudo bash -c 'cat << EOF > /etc/nginx/sites-available/122.8.154.93
+          server {
+              listen 80;
+              server_name 122.8.154.93; # Replace with your domain name
+              location / {
+                  proxy_pass http://localhost:3000; # Assuming your Next.js app is running on port 3000
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection "upgrade";
+                  proxy_set_header Host \$host;
+                  proxy_cache_bypass \$http_upgrade;
+              }
+          }
+          EOF'
+          sudo ln -s /etc/nginx/sites-available/122.8.154.93 /etc/nginx/sites-enabled/
+          sudo nginx -t
+          sudo service nginx restart
+
+      # Install dependencies and build the Next.js application
+      - run:
+          name: Install dependencies and Build Next.js application
+          command: |
+            cd huawei-cloud-nextjs-app # Replace with the path to your Next.js application
+            npm install --force
+            npm run build
+
+      # Start the Next.js application
+      - run:
+          name: Start Next.js application
+          command: |
+            cd huawei-cloud-nextjs-app # Replace with the path to your Next.js application
+            nohup npm run start &
+
+workflows:
+  version: 2
+  deploy:
+    jobs:
+      - deploy:
+          filters:
+            branches:
+              only:
+                - master
