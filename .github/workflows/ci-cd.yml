@@ -73,7 +73,7 @@ jobs:
               listen 80 default_server;
               server_name _;
               location / {
-                root /home/root/nextjs-app/build;  # Replace with the path to the copied Next.js build folder
+                root /home/root/nextjs-app;  # Replace with the path to the copied Next.js build folder
                 index index.html;
               }
             }
