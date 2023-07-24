@@ -19,7 +19,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 190.92.217.211 >> ~/.ssh/known_hosts
-         
+          # Huawei Cloud ECS sunucunuzun IP adresini veya alan adını burada belirtin.
 
       - name: Install Node.js and NPM
         run: |
@@ -31,9 +31,26 @@ jobs:
           npm install
           npm run build
 
-      - name: Deploy to Nginx
+      - name: Install and Start Nginx
         run: |
           sudo apt-get install -y nginx
-          sudo cp -r ./build/* /var/www/html
           sudo systemctl start nginx
           sudo systemctl enable nginx
+
+      - name: Adjust Nginx Configuration
+        run: |
+          sudo rm /etc/nginx/sites-available/default
+          sudo rm /etc/nginx/sites-enabled/default
+          echo "server {
+                  listen 80;
+                  server_name _;
+
+                  location / {
+                      proxy_pass http://127.0.0.1:3000;
+                      proxy_set_header Host \$host;
+                      proxy_set_header X-Real-IP \$remote_addr;
+                  }
+              }" | sudo tee /etc/nginx/sites-available/next-app
+          sudo ln -s /etc/nginx/sites-available/next-app /etc/nginx/sites-enabled/
+          sudo nginx -t
+          sudo systemctl restart nginx
