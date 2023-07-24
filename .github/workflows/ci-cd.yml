@@ -19,13 +19,18 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           # Add any other SSH configuration you might need, such as known_hosts, etc.
 
-      - name: Install Node.js and npm
+      - name: Install Node.js using nvm
         run: |
-          sudo apt-get update
-          sudo apt-get install -y nodejs npm
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+          nvm install node
+          npm install -g npm
 
       - name: Install Nginx
         run: |
+          sudo apt-get update
           sudo apt-get install -y nginx
 
       - name: Configure Nginx
@@ -33,8 +38,7 @@ jobs:
           sudo bash -c 'cat << EOF > /etc/nginx/sites-available/122.8.154.93
           server {
               listen 80;
-              server_name 122.8.154.93;
-
+              server_name 122.8.154.93; # Replace with your domain name
               location / {
                   proxy_pass http://localhost:3000; # Assuming your Next.js app is running on port 3000
                   proxy_http_version 1.1;
@@ -45,21 +49,17 @@ jobs:
               }
           }
           EOF'
-
           sudo ln -s /etc/nginx/sites-available/122.8.154.93 /etc/nginx/sites-enabled/
           sudo nginx -t
           sudo service nginx restart
 
-      - name: Clone the repository
-        run: git clone https://github.com/mehmetaltugakgul/huawei-cloud-nextjs-app.git
-
       - name: Install dependencies and Build Next.js application
         run: |
-          cd huawei-cloud-nextjs-app
+          cd your_project_directory # Replace with the path to your Next.js application
           npm install --force
           npm run build
 
       - name: Start Next.js application
         run: |
-          cd huawei-cloud-nextjs-app
-          nohup npm run dev &
+          cd your_project_directory # Replace with the path to your Next.js application
+          nohup npm run start &
