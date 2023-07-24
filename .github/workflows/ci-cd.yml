@@ -18,8 +18,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 119.13.108.80 >> ~/.ssh/known_hosts
-          # Replace <ECS_SERVER_IP> with the IP address or domain name of your Huawei Cloud ECS server.
+          ssh-keyscan -H 190.92.217.211 >> ~/.ssh/known_hosts
+         
 
       - name: Install Node.js and NPM
         run: |
