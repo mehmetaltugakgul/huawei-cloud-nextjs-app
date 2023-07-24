@@ -18,7 +18,7 @@ jobs:
       - name: Upload repository to Huawei Cloud ECS
         uses: appleboy/ssh-action@master
         with:
-          host: 190.92.217.211
+          host: 122.8.154.93
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add your private key as a secret in the GitHub repository settings
           port: 22  # Replace with the SSH port number if different (default is 22)
@@ -33,7 +33,7 @@ jobs:
       - name: Clone GitHub repository on the server
         uses: appleboy/ssh-action@master
         with:
-          host: 190.92.217.211
+          host: 122.8.154.93
           username: root
           key: ${{secrets.SSH_PRIVATE_KEY}}  # Add your private key as a secret in the GitHub repository settings
           port: 22  # Replace with the SSH port number if different (default is 22)
@@ -44,7 +44,7 @@ jobs:
       - name: Build Next.js app on the server
         uses: appleboy/ssh-action@master
         with:
-          host: 190.92.217.211
+          host: 122.8.154.93
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add your private key as a secret in the GitHub repository settings
           port: 22  # Replace with the SSH port number if different (default is 22)
@@ -57,7 +57,7 @@ jobs:
       - name: SSH into the server and setup Nginx
         uses: appleboy/ssh-action@master
         with:
-          host: 190.92.217.211
+          host: 122.8.154.93
           username: root
           key: ${{secrets.SSH_PRIVATE_KEY}}  # Add your private key as a secret in the GitHub repository settings
           port: 22  # Replace with the SSH port number if different (default is 22)
