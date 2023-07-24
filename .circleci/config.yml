@@ -32,7 +32,11 @@ jobs:
       - run: export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm install 14.17.4
 
       # Install Nginx web server
-      - run: sudo apt-get install -y nginx
+      - run: sudo apt update
+             sudo apt upgrade
+            sudo apt install update-manager-core
+            sudo do-release-upgrade
+            sudo apt install nginx
 
       # Configure Nginx to serve the Next.js app
       - run: |
