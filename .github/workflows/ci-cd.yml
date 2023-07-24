@@ -23,4 +23,4 @@ jobs:
 
     - name: Deploy Next.js application
       run: |
-        ssh -i ~/.ssh/id_rsa root@190.92.217.211 "git clone https://github.com/mehmetaltugakgul/huawei-cloud-nextjs-app.git . && npm install && npm run build && npm run start:prod"
+        ssh -i ~/.ssh/id_rsa root@190.92.217.211 "git clone https://github.com/mehmetaltugakgul/huawei-cloud-nextjs-app.git && cd huawei-cloud-nextjs-app && npm install && npm run build && npm run start:prod"
