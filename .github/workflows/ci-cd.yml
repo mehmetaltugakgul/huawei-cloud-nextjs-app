@@ -12,6 +12,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Install Node.js and npm
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14.x'  # You can specify the desired Node.js version here
+
     - name: Install SSH key
       run: |
         mkdir -p ~/.ssh
